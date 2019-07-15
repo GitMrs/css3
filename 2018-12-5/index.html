@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>challenges</title>
+</head>
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(darkblue, black)
+    }
+
+    .app {
+        height: 420px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    h1 {
+        margin: 0;
+        color: white;
+    }
+
+    .whole-body {
+        width: 200px;
+        height: 200px;
+        background-color: rgb(180, 220, 255);
+        border-radius: 50%;
+        font-size: 140px;
+        text-align: center;
+        line-height: 190px;
+        margin-top: 20px;
+        box-shadow: 0 0 0 15px rgba(180, 220, 255, 0.2);
+        user-select: none;
+    }
+
+    .bingo {
+        color: white;
+        font-size: 30px;
+        font-family: sans-serif;
+        margin-top: 20px;
+    }
+
+    .again {
+        display: inline-block;
+        font-size: 20px;
+        background-color: white;
+        color: darkblue;
+        padding: 5px;
+        border-radius: 5px;
+        box-shadow: 5px 5px 2px rgba(0, 0, 0, 0.2)
+    }
+
+    .again:hover {
+        background-color: rgba(255, 255, 255, 0.8);
+        cursor: pointer;
+    }
+
+    .again:active {
+        transform: translate(2px, 2px);
+        box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.4);
+    }
+
+    .selector {
+        display: flex;
+        position: relative;
+    }
+
+    .face {
+        width: 60px;
+        height: 60px;
+        background-color: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        font-size: 40px;
+        text-align: center;
+        line-height: 60px;
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .face:not(:last-child) {
+        margin-right: 25px;
+    }
+
+    .slider {
+        position: absolute;
+        width: 60px;
+        height: 60px;
+        background-color: rgba(180, 220, 255, 0.6);
+        border-radius: 50%;
+        z-index: -1;
+    }
+</style>
+
+<body>
+    <div class="app">
+        <h1>Which face is the animal's?</h1>
+        <div class="whole-body">🐄</div>
+        <div class="bingo">
+            Bingo!
+            <span class="again">Play Again</span>
+        </div>
+        <div class="selector">
+            <span class="slider"></span>
+            <span class="face">🐭</span>
+            <span class="face">🐶</span>
+            <span class="face">🐷</span>
+            <span class="face">🐮</span>
+            <span class="face">🐯</span>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.11/lodash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/2.0.2/TweenMax.min.js"></script>
+    <script>
+        const animals = {
+            '🐭': '🐁',
+            '🐶': '🐕',
+            '🐷': '🐖',
+            '🐮': '🐄',
+            '🐯': '🐅',
+            '🐔': '🐓',
+            '🐵': '🐒',
+            '🐲': '🐉',
+            '🐴': '🐎',
+            '🐰': '🐇',
+        }
+        const dom = {
+            wholeBody: document.querySelector('.whole-body'),
+            bingo: document.querySelector('.bingo'),
+            again: document.querySelector('.again'),
+            faces: Array.from(document.querySelectorAll('.face')),
+            slider: document.querySelector('.slider')
+        }
+
+        let options = []
+        let answer = {}
+        let canSelect = false
+
+       async function select(e) {
+            if(!canSelect) return
+            let position = _.findIndex(options, o => o[0] == e.target.innerText)
+            // dom.slider.style.left = (25 + 60) * position + 'px';
+           await animation.moveSlider(position)
+            if (animals[e.target.innerText] === answer[1]) {
+                canSelect = false
+                // dom.bingo.style.visibility = 'visible'
+                await animation.showBingo()
+            }
+        }
+
+        async function newGame() {
+            // dom.bingo.style.visibility = 'hidden'
+            await animation.frameOut()
+            shuffle()
+            // dom.slider.style.left = '0px'
+            animation.framIn()
+            canSelect = true
+        }
+
+        function shuffle() {
+            options = _.slice(_.shuffle(_.entries(animals)), -5)
+            answer = _.sample(_.slice(options, -4))
+            dom.faces.forEach((face, i) => {
+                face.innerText = options[i][0]
+            })
+            dom.wholeBody.innerText = answer[1]
+        }
+
+        function init() {
+            dom.faces.forEach(face => {
+                face.addEventListener('click', select)
+            })
+            dom.again.addEventListener('click', newGame)
+            newGame()
+        }
+        const animation = {
+            moveSlider: (position) =>{
+                // dom.slider.style.left = (25 + 60) * position + 'px';
+                return new Promise(resolve => {
+                    new TimelineMax()
+                    .to(dom.slider,1,{scale:0.3})
+                    .to(dom.slider,1,{left: (25 + 60) * position + 'px'})
+                    .to(dom.slider,1,{scale:1})
+                    .timeScale(5)
+                    .eventCallback('onComplete',resolve)
+                }) 
+            },
+            showBingo: () => {
+                // dom.bingo.style.visibility = 'visible'
+                return new Promise(resolve => {
+                    new TimelineMax()
+                    .to(dom.bingo,0 ,{visibility:'visible'})
+                    .to(dom.bingo,1, {rotation:-5})
+                    .to(dom.bingo,1,{rotation: 5})
+                    .to(dom.bingo,1,{rotation: 0})
+                    .timeScale(8)
+                    .eventCallback('onComplete',resolve)
+                }) 
+            },
+            frameOut: () => {
+                // dom.bingo.style.visibility = 'hidden'
+                return new Promise(resolve => {
+                    new TimelineMax()
+                    .to(dom.bingo, 0, {visibility:'hidden'})
+                    .to(dom.slider, 1, {scale: 0}, 't1')
+                    .staggerTo(dom.faces,1,{scale:0},0.25,'t1')
+                    .to(dom.wholeBody,1,{scale:0},'t1')
+                    
+                    .timeScale(5)
+                    .eventCallback('onComplete',resolve)
+                }) 
+            },
+            framIn:() => {
+                // dom.slider.style.lelft = '0px'
+                return new Promise(resolve => {
+                    new TimelineMax()
+                    .to(dom.slider,0, {left: '0px'})
+                    .to(dom.wholeBody,2,{scale:1,delay:1})
+                    .staggerTo(dom.faces,1,{scale:1},0.25)
+                    .to(dom.slider,1,{scale:1})
+                    .timeScale(5)
+                    .eventCallback('onComplete',resolve)
+                }) 
+            }
+        }
+        window.onload = init()
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:700,300">
+</head>
+<style>
+  .frame{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 400px;
+    height: 400px;
+    margin-top: -200px;
+    margin-left: -200px;
+    background: #232323;
+    border-radius: 5px;
+    box-shadow: 4px 8px 16px 0 rgba(0, 0, 0, 0.1);
+    color: #333;
+  }
+  .center{
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%,-50%);
+  }
+  .btn-hover{
+    display: flex;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    text-transform: uppercase;
+    font-size: 1.4em;
+    background: white;
+  }
+  .center:hover .btn-hover{
+    background: #960d7f;
+    color: white;
+    transform: translate3d(0.7em,0.7em,0);
+  }
+  .center:hover .shadow{
+    background: white;
+    transform: translate3d(-.7em,-.7em,0);
+  }
+
+  .shadow{
+    position: absolute;
+    content: '';
+    z-index: -1;
+    left: 0.7em;
+    top: 0.7em;
+    background: #960d7f;
+  }
+  .btn-hover,.shadow{
+    width: 15rem;
+    height: 5rem;
+    box-sizing: border-box;
+    transition: color 0.5s ease,
+                background 0.5s ease,
+                transform 0.5s ease;
+  }
+</style>
+
+<body>
+  <div class="frame">
+    <div class="center">
+      <div class="parent">
+        <button class="btn-hover">Hover Me</button>
+        <div class="shadow"></div>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>
